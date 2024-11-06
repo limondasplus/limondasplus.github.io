@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Notepad</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+        }
+        #notepad {
+            width: 100%;
+            height: 300px;
+            font-size: 16px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 20px;
+            background-color: #fff;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>GitHub Notepad</h1>
+    <textarea id="notepad" placeholder="Write your notes here..."></textarea><br>
+    <button onclick="saveNotepad()">Save Changes</button>
+    <div class="status" id="status"></div>
+
+    <script>
+        const githubToken = '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'; // Replace with your GitHub token
+        const owner = 'limondasplus'; // Your GitHub username
+        const repo = 'limondasplus.github.io'; // Your GitHub repository name
+        const filePath = 'notepad.txt'; // File you want to edit (ensure this file exists in the repository)
+
+        // GitHub API URLs
+        const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+
+        // Fetch the current notepad content
+        async function fetchNotepad() {
+            const response = await fetch(apiUrl, {
+                headers: {
+                    'Authorization': `token ${githubToken}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const content = atob(data.content); // Decode the base64 content
+                document.getElementById('notepad').value = content;
+            } else {
+                document.getElementById('status').textContent = 'Error fetching the notepad content.';
+            }
+        }
+
+        // Save the changes to the notepad file on GitHub
+        async function saveNotepad() {
+            const newContent = document.getElementById('notepad').value;
+            const response = await fetch(apiUrl, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `token ${githubToken}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                const sha = data.sha; // Get the file's SHA for updating
+
+                const updateResponse = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Update notepad.txt',
+                        content: btoa(newContent), // Encode new content to base64
+                        sha: sha
+                    })
+                });
+
+                if (updateResponse.ok) {
+                    document.getElementById('status').textContent = 'Notepad updated successfully!';
+                } else {
+                    document.getElementById('status').textContent = 'Error updating the notepad.';
+                }
+            } else {
+                document.getElementById('status').textContent = 'Error fetching the notepad content for update.';
+            }
+        }
+
+        // Load the notepad on page load
+        fetchNotepad();
+    </script>
+</body>
+</html>
