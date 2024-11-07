@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recovery Codes Decryption</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f4f4f4;
+    }
+    .container {
+      text-align: center;
+      max-width: 500px;
+      padding: 20px;
+      background: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 1em;
+    }
+    .codes {
+      margin-top: 20px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Decrypt Recovery Codes</h1>
+  <p>Enter the passphrase to view the recovery codes:</p>
+  <input type="password" id="passphrase" placeholder="Enter passphrase" />
+  <button onclick="decryptCodes()">Decrypt</button>
+  <div id="output" class="codes"></div>
+</div>
+
+<script>
+  // Encrypted recovery codes (Base64 encoded)
+  const encryptedCodes = "YmZiZjItM2U5N2MsMWYxOTgtMzk0MDAsZTU3YmMtODI5NWEsNmE0MTMtNzJhZmUsMGI5MmQtNzMwMjEsMzNmYjctYWU4M2QsZmQ1MzktNWEyYjEsMTlhYmItYzE1MGUsN2ZjZWItY2QyMDksNjUwNDEtNDJiMTMsYmY5MWEtYThmNDUsNTJiOGYtM2JiZTYsNDhhMGMtNjQ5NzUsODZiNTMtZjJlNzAsYmIzNzgtY2FkYWE=";
+
+  function decryptCodes() {
+    const passphrase = document.getElementById('passphrase').value;
+    const output = document.getElementById('output');
+
+    if (passphrase === "Github@Keys") {
+      const decodedCodes = atob(encryptedCodes);
+      output.textContent = `Recovery Codes:\n${decodedCodes.split(',').join('\n')}`;
+    } else {
+      output.textContent = "Incorrect passphrase. Please try again.";
+    }
+  }
+</script>
+
+</body>
+</html>
