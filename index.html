@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+   
+   
+    <meta charset="UTF-8">
+    <meta name="description" content="Welcome to Limon+ Tools - A collection of lightweight, functional web tools including a Notepad and an Authenticator for secure TOTP generation." />
+    <meta name="keywords" content="Limon+ Tools, Notepad web app, Authenticator, TOTP generator, online tools, lightweight tools, secure authentication, text editor, free tools" />
+    <meta name="author" content="Limon Das" />
+    <meta name="robots" content="index, follow" />
+    <meta name="hash" content="limon-plus-web-tools-2024" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limon+ Tools - Home</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f4f6;
+            color: #333;
+        }
+        .header {
+            background-color: #007BFF;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        .container h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+        .container p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .button-group a {
+            text-decoration: none;
+            font-size: 16px;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .blue {
+            background-color: #007BFF;
+        }
+        .blue:hover {
+            background-color: #0056b3;
+        }
+        .green {
+            background-color: #28a745;
+        }
+        .green:hover {
+            background-color: #1e7e34;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Welcome to Limon+ Tools</h1>
+    </header>
+
+    <main class="container">
+        <h2>Your Lightweight Web Tools</h2>
+        <p>
+            Limon+ Tools offers simple and functional web applications to enhance your productivity. 
+            Explore our lightweight Notepad for easy text editing or use our secure Authenticator to generate TOTP codes for multi-factor authentication.
+        </p>
+        <div class="button-group">
+            <a href="notepad.html" class="blue">Open Notepad</a>
+            <a href="auth.html" class="green">Open Authenticator</a>
+        </div>
+    </main><script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .then((registration) => {
+                console.log("Service Worker registered with scope:", registration.scope);
+            })
+            .catch((error) => {
+                console.log("Service Worker registration failed:", error);
+            });
+    }
+</script>
+
+</body>
+</html>

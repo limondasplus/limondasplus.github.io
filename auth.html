@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="manifest" href="manifest.json">
+      <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+   
+    <meta charset="UTF-8">
+    <meta name="description" content="Limon+ Authenticator - A secure and lightweight TOTP generator for online accounts. Add, manage, and delete TOTP keys for two-factor and multi-factor authentication. Generate secure TOTP codes online." />
+<meta name="keywords" content="TOTP generator, online TOTP tool, authenticator app alternative, secure TOTP generator, two-factor authentication, multi-factor authentication, MFA, generate TOTP codes, TOTP key manager, secure login codes, free TOTP generator, 2FA tool, online 2FA, TOTP generator web app, add TOTP keys, delete TOTP keys, Limon+ authenticator, lightweight TOTP tool, secure authentication, multi-service TOTP generator, online authentication tool, protect accounts with TOTP, generate secure 2FA codes, OTP generator, time-based OTP, secure online login, free MFA tool, passwordless authentication, login security tool, TOTP code generator" />
+<meta name="author" content="Limon Das" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="index, follow" />
+<meta name="hash" content="limon-plus-totp-authenticator-secure-online-tool" />
+
+    <title>Authenticator Online</title>
+    <link rel="stylesheet" href="w3.css">
+    <script src="auth.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .hidden {
+            display: none;
+        }
+        .totp-container {
+            margin: 20px 0;
+        }
+        .timer {
+            color: red;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body class="container light-grey">
+
+<h2 class="center">Limon+ Authenticator</h2>
+
+<!-- Secret Input Section -->
+<div id="secret-input" class="card-4 padding center">
+    <label for="service-name">Service Name:</label>
+    <input type="text" id="service-name" class="input border" placeholder="Enter service name (e.g., GitHub)" />
+    <br><br>
+    <label for="secret-key">Secret Key:</label>
+    <input type="text" id="secret-key" class="input border" placeholder="Enter secret key" />
+    <br><br>
+    <button class="button blue" onclick="storeSecret()">Add Secret</button>
+</div>
+
+<!-- Display Multiple TOTP Codes Below -->
+<div id="totp-codes" class="card-4 padding hidden">
+    <h3 class="center">Generated TOTP Codes</h3>
+    <div id="totp-codes-list"></div>
+</div>
+
+<script>
+    const { authenticator } = otplib;
+
+    // Store references to the TOTP entries
+    const totpEntries = {};
+
+    // Function to read a cookie value by name
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
+    }
+
+    // Function to get all stored TOTP secrets from cookies
+    function getAllSecrets() {
+        const cookies = document.cookie.split(';');
+        const secrets = {};
+        cookies.forEach(cookie => {
+            const [key, value] = cookie.trim().split('=');
+            if (key.startsWith('secret_')) {
+                const serviceName = key.replace('secret_', '');
+                secrets[serviceName] = decodeURIComponent(value);
+            }
+        });
+        return secrets;
+    }
+
+    // Function to set a cookie with expiration
+    function setCookie(name, value, days = 7) {
+        const expires = new Date(Date.now() + days * 864e5).toUTCString();
+        document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+    }
+
+    // Function to delete a cookie
+    function deleteCookie(name) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+    }
+
+    // Function to store a new secret key for a service
+    function storeSecret() {
+        const serviceName = document.getElementById('service-name').value.trim();
+        const secret = document.getElementById('secret-key').value.trim();
+
+        if (serviceName && secret) {
+            // Store the secret in a cookie with the service name as key
+            setCookie(`secret_${serviceName}`, secret);
+
+            // Display the TOTP codes section if it's hidden
+            document.getElementById('totp-codes').classList.remove('hidden');
+
+            generateTOTPCode(serviceName, secret); // Generate the code for the first time
+        } else {
+            alert("Please enter both service name and secret key.");
+        }
+    }
+
+    // Function to generate a new TOTP code for a specific service
+    function generateTOTPCode(serviceName, secret) {
+        const code = authenticator.generate(secret); // Generate TOTP code
+        const timeRemaining = 30 - (Math.floor(Date.now() / 1000) % 30); // Time left for the current code
+        const codeContainer = document.getElementById('totp-codes-list');
+
+        // If the TOTP entry already exists, just update it
+        if (totpEntries[serviceName]) {
+            totpEntries[serviceName].codeText.textContent = code;
+            totpEntries[serviceName].timerText.textContent = `${timeRemaining}s`;
+        } else {
+            // Otherwise, create a new entry
+            const entryDiv = document.createElement('div');
+            entryDiv.id = `entry-${serviceName}`;
+            entryDiv.classList.add('totp-container');
+            entryDiv.innerHTML = `
+                <div class="row">
+                    <div class="col m4">
+                        <strong>${serviceName}:</strong> 
+                        <span class="totp-code">${code}</span>
+                        <span class="timer">${timeRemaining}s</span>
+                    </div>
+                    <div class="col m8 right">
+                        <button class="button teal" onclick="generateNewCode('${serviceName}')">Generate New Code</button>
+                        <button class="button red" onclick="deleteService('${serviceName}')">Delete</button>
+                    </div>
+                </div>
+            `;
+            codeContainer.appendChild(entryDiv);
+
+            totpEntries[serviceName] = {
+                codeText: entryDiv.querySelector('.totp-code'),
+                timerText: entryDiv.querySelector('.timer')
+            };
+        }
+    }
+
+    // Function to generate a new TOTP code when clicking "Generate New Code"
+    function generateNewCode(serviceName) {
+        const secret = getCookie(`secret_${serviceName}`);
+        if (secret) {
+            generateTOTPCode(serviceName, secret);
+        } else {
+            alert(`No secret key found for ${serviceName}. Please add the secret first.`);
+        }
+    }
+
+    // Function to delete a service's secret key
+    function deleteService(serviceName) {
+        const confirmDelete = confirm(`Are you sure you want to delete the secret for ${serviceName}?`);
+        if (confirmDelete) {
+            deleteCookie(`secret_${serviceName}`);
+            document.getElementById(`entry-${serviceName}`).remove();
+            delete totpEntries[serviceName];
+            alert(`Secret for ${serviceName} has been deleted.`);
+        }
+    }
+
+    // Auto-refresh every second for all displayed TOTP codes
+    setInterval(() => {
+        Object.keys(totpEntries).forEach(serviceName => {
+            const secret = getCookie(`secret_${serviceName}`);
+            if (secret) {
+                const timeRemaining = 30 - (Math.floor(Date.now() / 1000) % 30);
+                totpEntries[serviceName].timerText.textContent = `${timeRemaining}s`;
+                if (timeRemaining === 30) { // Refresh code when the time resets
+                    generateTOTPCode(serviceName, secret);
+                }
+            }
+        });
+    }, 1000);
+
+    // Load stored secrets and generate codes on page load
+    window.onload = () => {
+        const secrets = getAllSecrets();
+        if (Object.keys(secrets).length > 0) {
+            document.getElementById('totp-codes').classList.remove('hidden');
+            for (const [serviceName, secret] of Object.entries(secrets)) {
+                generateTOTPCode(serviceName, secret);
+            }
+        }
+    };
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .then((registration) => {
+                console.log("Service Worker registered with scope:", registration.scope);
+            })
+            .catch((error) => {
+                console.log("Service Worker registration failed:", error);
+            });
+    }
+</script>
+
+</body>
+</html>

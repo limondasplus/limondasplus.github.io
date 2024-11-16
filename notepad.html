@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><link rel="manifest" href="manifest.json">
+   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+   
+
+    <meta name="description" content="Beautiful Notepad - A lightweight, online text editor. Save, edit, and download your notes with ease. Designed for simplicity, speed, and functionality." />
+<meta name="keywords" content="online text editor, notepad web app, save text online, download notes, lightweight text editor, notepad with download, free notepad tool, simple text editor, online note-taking, HTML notepad, notepad app, web notepad, responsive notepad, easy-to-use text editor, secure note saving" />
+<meta name="author" content="Limon Das" />
+<meta name="robots" content="index, follow" />
+<meta name="hash" content="beautiful-notepad-text-editor-2024" />
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notepad</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f3f4f6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 400px;
+            padding: 15px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            resize: none;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 10px 15px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+        .blue {
+            background-color: #007BFF;
+        }
+        .blue:hover {
+            background-color: #0056b3;
+        }
+        .green {
+            background-color: #28a745;
+        }
+        .green:hover {
+            background-color: #1e7e34;
+        }
+        .red {
+            background-color: #dc3545;
+        }
+        .red:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Notepad</h1>
+        <textarea id="notepad" placeholder="Type your text here..."></textarea>
+        <div class="button-group">
+            <button class="blue" onclick="saveText()">Save</button>
+            <button class="green" onclick="downloadText()">Download</button>
+            <button class="red" onclick="clearText()">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        // Function to save text to a cookie
+        function saveText() {
+            const text = document.getElementById('notepad').value;
+            document.cookie = "notepadContent=" + encodeURIComponent(text) + ";path=/;max-age=31536000";
+            alert('Text saved!');
+        }
+
+        // Function to load text from the cookie
+        function loadText() {
+            const cookie = document.cookie.split(';').find(cookie => cookie.trim().startsWith('notepadContent='));
+            if (cookie) {
+                const text = decodeURIComponent(cookie.split('=')[1]);
+                document.getElementById('notepad').value = text;
+            }
+        }
+
+        // Function to download text as a .txt file
+        function downloadText() {
+            const text = document.getElementById('notepad').value;
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = prompt("Enter file name:", "Notepad.txt");
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Function to clear the notepad
+        function clearText() {
+            const confirmClear = confirm("Are you sure you want to clear the text?");
+            if (confirmClear) {
+                document.getElementById('notepad').value = "";
+            }
+        }
+
+        // Load saved text from the cookie when the page loads
+        window.onload = loadText;
+    </script><script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .then((registration) => {
+                console.log("Service Worker registered with scope:", registration.scope);
+            })
+            .catch((error) => {
+                console.log("Service Worker registration failed:", error);
+            });
+    }
+</script>
+
+</body>
+</html>
